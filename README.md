@@ -294,7 +294,7 @@ Under the [MIT License](LICENSE) you are free to **use, modify, and distribute**
 
 ## Connect · Huasheng (Huashu)
 
-Huasheng is an AI-native coder, independent developer, and AI content creator. Notable work: Cat Fill Light (App Store Top 1 in Paid category), *A Book on DeepSeek*, Nüwa.skill (GitHub 12k+ stars). Combined 300k+ followers across platforms.
+Huasheng is an AI-native coder, independent developer, and AI content creator. Notable work: Cat Fill Light (App Store Top 1 in Paid category), *A Book on DeepSeek*, Nüwa.skill (GitHub 21k+ stars). Combined 300k+ followers across platforms.
 
 | Platform | Handle | Link |
 |---|---|---|
