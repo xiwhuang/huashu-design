@@ -509,8 +509,9 @@ Screen 组件接 callback props（`onEnter`、`onClose`、`onTabChange`、`onOpe
 **固定尺寸内容**（幻灯片/视频）必须自己实现JS缩放，用auto-scale + letterboxing。
 
 **幻灯片架构选型（必先决定）**：
-- **多文件**（默认，≥10页 / 学术/课件 / 多agent并行）→ 每页独立HTML + `assets/deck_index.html`拼接器
-- **单文件**（≤10页 / pitch deck / 需跨页共享状态）→ `assets/deck_stage.js` web component
+- 🔴 **默认且强烈推荐：多文件 + 概览墙**（几乎所有 PPT——培训/路演/科普/课件/汇报）→ 每页独立 HTML + `assets/deck_index.html` 拼接器。**这是 PPT 的默认交付形态**：自带 **3D 概览墙**（打开先看全局再逐页讲）+ 自适应缩放 + 统一页码。
+- **单文件**（仅 ≤5 页极简 pitch、且明确不需要概览墙、或需跨页共享 JS 状态）→ `assets/deck_stage.js`。
+- 🛑 **不要默认选单文件而绕过概览墙**——北大 13 页 deck 实测踩坑：选了单文件 = 丢了概览墙，违背 PPT 默认交付形态。选单文件前先确认「这真的是 ≤5 页、且不需要概览墙」。
 
 先读 `references/slide-decks.md` 的「🛑 先定架构」一节，错了会反复踩 CSS 特异性/作用域的坑。
 
