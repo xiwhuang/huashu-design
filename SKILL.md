@@ -323,46 +323,52 @@ api = 'https://commons.wikimedia.org/w/api.php'
 
 **反例**：给文字 Essay 配 Unsplash「灵感图」、给笔记 App 配 stock photo 模特——都是 AI slop。取真图的许可不等于滥用真图的通行证。
 
-### 2. 交付形态：overview 平铺 / flow demo 单机——先问用户要哪种
+### 2. 交付形态：默认「平铺 + 可操作」，不要问用户
 
-多屏 App 原型有两种标准交付形态，**先问用户要哪种**，不要默认挑一种闷头做：
+iOS App 原型的**默认交付形态就一种，不要再问用户「要平铺还是可操作」**：**平铺 4-6 个主界面，且每一台都能交互**。一眼看全貌（多台 iPhone 并排），又每台都能点 tab 切换、在界面上做基本操作（展开、切换、选中、打开弹层）。两个好处一次给齐，别让用户二选一。
 
-| 形态 | 何时用 | 做法 |
-|------|--------|------|
-| **Overview 平铺**（设计 review 默认）| 用户要看全貌 / 比较布局 / 走查设计一致性 / 多屏并排 | **所有屏并排静态展示**，每屏一台独立 iPhone，内容完整，不需要可点击 |
-| **Flow demo 单机** | 用户要演示一条特定用户流程（如 onboarding、购买链路）| 单台 iPhone，内嵌 `AppPhone` 状态管理器，tab bar / 按钮 / 标注点都能点 |
+| 维度 | 默认做法 |
+|------|---------|
+| **屏数** | 平铺 **4-6 个主界面**（覆盖 app 的核心功能面，不是随便摆几个）。多于 6 个抓最主要的 4-6 个，其余可在单台内通过 tab/导航到达 |
+| **布局** | 多台独立 iPhone 横向 `flexWrap` 并排，每台上方一行 italic 小字标签说明这是哪个界面 |
+| **每台交互** | 每台都是独立的迷你状态机：tab bar 可切、界面内按钮/卡片/开关可点、能弹 modal——不是静态摆拍 |
 
-**路由关键词**：
-- 任务里出现「平铺 / 展示所有页面 / overview / 看一眼 / 比较 / 所有屏」→ 走 **overview**
-- 任务里出现「演示流程 / 用户路径 / 走一遍 / clickable / 可交互 demo」→ 走 **flow demo**
-- 不确定就问。不要默认选 flow demo（它更费工，不是所有任务都需要）
+**只有两种特例才偏离默认**（用户明确说了才走，否则一律默认）：
+- 用户明确「只要静态截图 / 不用能点 / 就看 layout」→ 退回纯静态 overview（每台只渲染 `ScreenComponent`，不挂状态机）
+- 用户明确「只演示一条流程 / 走一遍 onboarding / 单机 demo」→ 单台 `AppPhone` 走完整 flow
 
-**Overview 平铺的骨架**（每屏独立一台 IosFrame 并排）：
+**默认骨架**（平铺多台，每台各自一个带 state 的 AppPhone）：
 
 ```jsx
+// 每台 = 一个独立状态机，初始落在自己负责的主界面
+function AppPhone({ initial }) {
+  const [screen, setScreen] = React.useState(initial);
+  const [modal, setModal] = React.useState(null);
+  // 按 screen 渲染对应 ScreenComponent，传入 onTabChange/onOpen/onClose/onToggle 等 callback
+  return (
+    <IosFrame>
+      <ScreenComponent
+        screen={screen}
+        onTabChange={setScreen}
+        onOpen={setModal}
+        onClose={() => setModal(null)}
+      />
+    </IosFrame>
+  );
+}
+
+// 平铺：4-6 台并排，每台 initial 落在不同主界面
 <div style={{display: 'flex', gap: 32, flexWrap: 'wrap', padding: 48, alignItems: 'flex-start'}}>
-  {screens.map(s => (
+  {mainScreens.map(s => (
     <div key={s.id}>
       <div style={{fontSize: 13, color: '#666', marginBottom: 8, fontStyle: 'italic'}}>{s.label}</div>
-      <IosFrame>
-        <ScreenComponent data={s} />
-      </IosFrame>
+      <AppPhone initial={s.id} />
     </div>
   ))}
 </div>
 ```
 
-**Flow demo 的骨架**（单台 clickable 状态机）：
-
-```jsx
-function AppPhone({ initial = 'today' }) {
-  const [screen, setScreen] = React.useState(initial);
-  const [modal, setModal] = React.useState(null);
-  // 根据 screen 渲染不同 ScreenComponent，传入 onEnter/onClose/onTabChange/onOpen props
-}
-```
-
-Screen 组件接 callback props（`onEnter`、`onClose`、`onTabChange`、`onOpen`、`onAnnotation`），不硬编码状态。TabBar、按钮、作品卡加 `cursor: pointer` + hover 反馈。
+Screen 组件接 callback props（`onTabChange`、`onOpen`、`onClose`、`onToggle`、`onAnnotation`），不硬编码状态。TabBar、按钮、作品卡、开关加 `cursor: pointer` + hover 反馈。每台落在不同主界面，但 tab 切换后能到达彼此——平铺给全貌，点击给纵深。
 
 ### 3. 交付前跑真实点击测试
 
